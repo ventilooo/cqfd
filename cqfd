@@ -130,18 +130,21 @@ docker_run() {
 		done
 	fi
 
-	docker run --privileged -v "$PWD":/home/builder/src \
-	       -v ~/.ssh:/home/builder/.ssh \
+	docker run --privileged -v "$PWD":/opt/odoo9dev/client/git/sfl \
+	       -v ~/.ssh:/opt/odoo9dev/.ssh \
 	       --rm \
 	       $extravol \
 	       ${nojenkins:+ -ti} \
-	       ${SSH_AUTH_SOCK:+ -v $SSH_AUTH_SOCK:/home/builder/.sockets/ssh} \
-	       ${SSH_AUTH_SOCK:+ -e SSH_AUTH_SOCK=/home/builder/.sockets/ssh} \
+	       ${SSH_AUTH_SOCK:+ -v $SSH_AUTH_SOCK:/opt/odoo9dev/.sockets/ssh} \
+	       ${SSH_AUTH_SOCK:+ -e SSH_AUTH_SOCK=/opt/odoo9dev/.sockets/ssh} \
 	       $docker_img_name \
-	       /bin/bash -c "groupadd -og $GROUPS -f builders && \
-	       useradd -s /bin/bash -u $UID -g $GROUPS builder && \
-	       chown $UID:$GROUPS /home/builder && \
-	       su builder -p -c \"cd ~builder/src/ && $1\" 2>&1"
+	       /bin/bash -c "groupadd -og $GROUPS -f odoodev && \
+	       useradd -s /bin/bash -u $UID -g $GROUPS odoo9dev && \
+	       chown -R $UID:$GROUPS /opt/odoo9dev && \
+           git config --system user.name 'runner-odoo' && \
+           git config --system user.email 'your.email@example.com' &&\
+	       su odoo9dev -p -c \"cd /opt/odoo9dev/client/git/sfl && \
+           $1\" 2>&1"
 }
 
 # make_archive(): Create a release package.
