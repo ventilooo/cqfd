@@ -130,20 +130,23 @@ docker_run() {
 		done
 	fi
 
-	docker run --privileged -v "$PWD":/opt/odoo9dev/client/git/sfl \
-	       -v ~/.ssh:/opt/odoo9dev/.ssh \
+    export user='odoo9dev'
+
+
+	docker run --privileged -v "$PWD":/opt/${user}/client/git/sfl \
+	       -v ~/.ssh:/opt/${user}/.ssh \
 	       --rm \
 	       $extravol \
 	       ${nojenkins:+ -ti} \
-	       ${SSH_AUTH_SOCK:+ -v $SSH_AUTH_SOCK:/opt/odoo9dev/.sockets/ssh} \
-	       ${SSH_AUTH_SOCK:+ -e SSH_AUTH_SOCK=/opt/odoo9dev/.sockets/ssh} \
+	       ${SSH_AUTH_SOCK:+ -v $SSH_AUTH_SOCK:/${user}/.sockets/ssh} \
+	       ${SSH_AUTH_SOCK:+ -e SSH_AUTH_SOCK=/opt/${user}/.sockets/ssh} \
 	       $docker_img_name \
-	       /bin/bash -c "groupadd -og $GROUPS -f odoodev && \
-	       useradd -s /bin/bash -u $UID -g $GROUPS odoo9dev && \
-	       chown -R $UID:$GROUPS /opt/odoo9dev && \
-           git config --system user.name 'runner-odoo' && \
+	       /bin/bash -c "groupadd -og $GROUPS -f ${user} && \
+	       useradd -s /bin/bash -u $UID -g $GROUPS ${user} && \
+	       chown -R $UID:$GROUPS /opt/${user} && \
+           git config --system user.name 'odoo' && \
            git config --system user.email 'your.email@example.com' &&\
-	       su odoo9dev -p -c \"cd /opt/odoo9dev/client/git/sfl && \
+	       su ${user} -p -c \"cd /opt/${user}/client/git/sfl && \
            $1\" 2>&1"
 }
 
